@@ -179,7 +179,8 @@ function update() {
   show();
   const i = r.info;
   const fmt = (v) => v.toFixed(v < 10 ? 1 : 0).replace('.', ',');
-  const pegs = i.pegCount ? `${i.pegCount} × ⌀${fmt(state.p.kolekD)} × ${fmt(i.pegShaft)} mm (+ łeb)` : state.p.mocowanie === 'otwory' ? 'wbudowane' : '—';
+  const pegs = i.pegCount ? `osobne, ${i.pegCount} × ⌀${fmt(state.p.kolekD)} × ${fmt(i.pegShaft)} mm (+ łeb)`
+    : i.latch ? `zatrzask, języczek wygina się o ${(i.latch.strain * 100).toFixed(1).replace('.', ',')} %` : 'wbudowane w płytkę';
   $('#info').innerHTML = `
     <div><dt>Część do druku</dt><dd>${i.partSize.map(fmt).join(' × ')} mm</dd></div>
     <div><dt>Na stole razem z kołkami</dt><dd>${i.printSize.slice(0, 2).map(fmt).join(' × ')} mm</dd></div>

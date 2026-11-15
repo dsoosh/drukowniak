@@ -110,14 +110,23 @@ function pegSolid(wasm, p, shaft) {
   return { solid: body.transform(ALONG_X).translate([-head, 0, 0]), halfHeight: zc, headR: R, head };
 }
 
-function pinSolid(wasm, p) {
-  const { Manifold } = wasm;
-  const r = p.kolekD / 2, len = p.kolekGleb + 0.5, tip = 0.8;
-  const pin = Manifold.union([
-    Manifold.cylinder(len - tip, r, r, SEG),
-    Manifold.cylinder(tip, r, r - 0.6, SEG).translate([0, 0, len - tip]),
-  ]);
-  return pin.transform(ALONG_X).translate([-0.5, 0, 0]);
+/**
+ * Kołek wbudowany wzdłuż +x od x = 0 do len, oś w y = z = 0. Przekrój: górna połowa koła, dolna
+ * w kształcie V pod 45° (dół przy druku = +y), więc wystający poziomo kołek drukuje się bez podpór.
+ */
+function vPin(wasm, r, len) {
+  const { CrossSection: CS, Manifold } = wasm;
+  const top = CS.circle(r, SEG).intersect(CS.square([2 * r + 2, r + 1]).translate([-r - 1, -r - 1]));
+  const vee = CS.square([r * Math.SQRT2, r * Math.SQRT2], true).rotate(45).intersect(CS.square([2 * r + 2, r + 1]).translate([-r - 1, 0]));
+  const cs = top.add(vee);
+  const tip = Math.min(0.8, len / 4);
+  const body = Manifold.union([cs.extrude(len - tip), cs.extrude(tip, 0, 0, 0.75).translate([0, 0, len - tip])]);
+  return body.transform(m4([[0, 0, 1], [0, 1, 0], [-1, 0, 0]])); // (s, t, w) → (x = w, y = t, z = −s)
+}
+
+/** Odkształcenie języczka zatrzasku przy wysunięciu kołka: belka wspornikowa, ε = 3·t·δ / (2·L²). */
+export function latchStrain(t, delta, lever) {
+  return (3 * t * delta) / (2 * lever * lever);
 }
 
 function pegZs(n, step, z0) {
@@ -137,7 +146,8 @@ export function buildIvar(wasm, p) {
   const A = p.slupekSzer, B = p.slupekGrub;
   const warnings = [];
   const step = p.otworRozstaw * p.kolkiCo;
-  const separate = p.mocowanie === 'opaska' || p.kolki === 'osobne';
+  const separate = p.kolki === 'osobne';
+  let latch = null;
   const holeR = (p.kolekD + 0.4) / 2;
   const peg0 = pegSolid(wasm, p, 1);
 
@@ -166,7 +176,8 @@ export function buildIvar(wasm, p) {
     if (separate) {
       for (const z of zs) part = part.subtract(teardropX(wasm, holeR, tp + 2, -1).translate([-tp - 1, p.otworY, z]));
     } else {
-      for (const z of zs) part = part.add(pinSolid(wasm, p).translate([0, p.otworY, z]));
+      const pin = vPin(wasm, p.kolekD / 2, p.kolekGleb + 0.5);
+      for (const z of zs) part = part.add(pin.translate([-0.5, p.otworY, z]));
     }
     printDown = DOWN_YMAX;
     shaft = tp + p.kolekGleb;
@@ -180,10 +191,35 @@ export function buildIvar(wasm, p) {
     const inner = CS.square([B + 2 * g, A + g + 1]).translate([-g, -1]);
     part = outer.subtract(inner).extrude(H);
     zs = pegZs(p.kolkiIle, step, H / 2 - ((p.kolkiIle - 1) * step) / 2);
-    if (zs[0] - peg0.headR < 0.5 || zs[zs.length - 1] + peg0.headR > H - 0.5) {
-      warnings.push(`Opaska za niska na ${p.kolkiIle} kołki co ${step} mm — zwiększ wysokość albo zmniejsz liczbę kołków.`);
+    if (separate) {
+      if (zs[0] - peg0.headR < 0.5 || zs[zs.length - 1] + peg0.headR > H - 0.5) {
+        warnings.push(`Opaska za niska na ${p.kolkiIle} kołki co ${step} mm — zwiększ wysokość albo zmniejsz liczbę kołków.`);
+      }
+      for (const z of zs) part = part.subtract(teardropX(wasm, holeR, tw + 2, -1).translate([x0 - 1, hy, z]));
+    } else {
+      // Zatrzask: każdy kołek na języczku wyciętym w przedniej ściance, zakorzenionym w ściance bocznej.
+      // Nacięcia biegną od otwartej krawędzi do ścianki bocznej; języczek wystaje za krawędź jako uchwyt.
+      // Przy druku (ścianka boczna na stole) języczek i nacięcia są pionowe — bez nawisów.
+      const tt = Math.min(p.zatrzaskGrub, tw), slit = 0.7, wt = Math.max(p.kolekD + 3, 9), tab = 8;
+      const yRoot = A + g;
+      if (zs[0] - wt / 2 - slit < 1 || zs[zs.length - 1] + wt / 2 + slit > H - 1) {
+        warnings.push(`Opaska za niska na ${p.kolkiIle} zatrzaski co ${step} mm — zwiększ wysokość albo zmniejsz liczbę kołków.`);
+      }
+      const pin = vPin(wasm, p.kolekD / 2, g + p.zatrzaskGleb + 0.5);
+      for (const z of zs) {
+        for (const zz of [z - wt / 2 - slit, z + wt / 2]) {
+          part = part.subtract(Manifold.cube([tw + 2, yRoot + 1, slit]).translate([x0 - 1, -1, zz]));
+        }
+        if (tt < tw) part = part.subtract(Manifold.cube([tw - tt + 1, yRoot + 1, wt]).translate([x0 - 1, -1, z - wt / 2]));
+        part = part.add(Manifold.cube([tt, tab + 0.5, wt]).translate([-g - tt, -tab, z - wt / 2]));
+        part = part.add(pin.translate([-g - 0.5, hy, z]));
+      }
+      const lever = yRoot - hy, delta = g + p.zatrzaskGleb;
+      latch = { strain: latchStrain(tt, delta, lever), lever, delta };
+      if (latch.strain > 0.03) {
+        warnings.push(`Języczek zatrzasku wygina się o ${(latch.strain * 100).toFixed(1)} % — może pęknąć. Zmniejsz wejście w otwór albo grubość języczka.`);
+      }
     }
-    for (const z of zs) part = part.subtract(teardropX(wasm, holeR, tw + 2, -1).translate([x0 - 1, hy, z]));
     const We = Math.min(p.elemSzer > 0 ? p.elemSzer : Ymax, Ymax);
     const el = usefulPart(wasm, p, We, -1);
     part = part.add(el.solid.translate([x1, Ymax, 0]));
@@ -228,6 +264,7 @@ export function buildIvar(wasm, p) {
     pegCount: pegs.length,
     pegShaft: separate ? shaft : 0,
     pegZs: zs,
+    latch,
   };
   return { part, pegs, print: layout, pegPrint, info, warnings };
 }

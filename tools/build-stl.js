@@ -30,5 +30,5 @@ for (const pr of PRESETS) {
   fs.writeFileSync(path.join(out, `${pr.id}.png`), meshToPng(wasm.Manifold.union([r.part, ...r.pegs]).getMesh()));
 }
 // pojedynczy kołek do opaski (najdłuższy) — zapas albo zamiennik
-const r = buildIvar(wasm, presetParams('hak-opaska'));
+const r = buildIvar(wasm, { ...presetParams('hak-opaska'), kolki: 'osobne' });
 write('kolek.stl', r.pegPrint.decompose()[0]);

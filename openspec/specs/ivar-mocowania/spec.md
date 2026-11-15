@@ -26,9 +26,19 @@ System SHALL oferować hak (prześwit, wysokość zagięcia, grubość), obejmę
 Kołki SHALL leżeć w osi otworów, w odstępach będących wielokrotnością rozstawu otworów,
 i wchodzić w słupek na zadaną głębokość. Osobne kołki SHALL drukować się bez podpór.
 
-#### Scenario: Kołki wbudowane
-- **WHEN** użytkownik wybiera kołki wbudowane (tylko mocowanie w otwory)
-- **THEN** kołki są częścią płytki, a interfejs informuje o potrzebie podpór
+### Requirement: Jedna część bez składania (domyślnie)
+Domyślne wykonanie SHALL być jedną bryłą drukowaną bez podpór. Mocowanie w otwory ma kołki
+wbudowane o przekroju „pół koła + V 45°” (V w dół przy druku). Opaska ma zatrzask: każdy kołek
+na języczku wyciętym w przedniej ściance, zakorzenionym w ściance bocznej, z uchwytem za otwartą
+krawędzią; nacięcia i języczek są pionowe przy druku.
+
+#### Scenario: Odkształcenie zatrzasku
+- **WHEN** odkształcenie języczka ε = 3·t·δ / (2·L²) przekracza 3 %
+- **THEN** interfejs ostrzega i proponuje mniejsze wejście w otwór lub cieńszy języczek
+
+#### Scenario: Osobne kołki
+- **WHEN** użytkownik wybiera osobne kołki
+- **THEN** część ma otwory kroplowe, a kołki leżą obok w tym samym pliku STL
 
 ### Requirement: Plik do druku
 Pobrany STL SHALL zawierać część w pozycji do druku (z ≥ 0, profil płasko na stole) i osobne kołki

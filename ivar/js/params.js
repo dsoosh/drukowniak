@@ -4,6 +4,8 @@
 const isOtwory = (p) => p.mocowanie === 'otwory';
 const isOpaska = (p) => p.mocowanie === 'opaska';
 const isEl = (name) => (p) => p.element === name;
+/** Opaska w jednej części: kołki na elastycznych języczkach wyciętych w przedniej ściance. */
+export const isZatrzask = (p) => p.mocowanie === 'opaska' && p.kolki === 'jedna';
 
 export const GROUPS = ['Mocowanie', 'Słupek IVAR', 'Kołki', 'Płytka na otwory', 'Opaska', 'Hak', 'Obejma', 'Płytka do przykręcenia', 'Druk'];
 
@@ -19,12 +21,14 @@ export const PARAMS = [
   { key: 'otworY', group: 'Słupek IVAR', label: 'Oś otworów od prawej krawędzi', type: 'num', def: 22, min: 3, max: 87, step: 0.5, measure: 'C' },
   { key: 'otworRozstaw', group: 'Słupek IVAR', label: 'Rozstaw otworów w pionie', type: 'num', def: 32, min: 10, max: 80, step: 0.5, measure: 'D' },
 
-  { key: 'kolki', group: 'Kołki', label: 'Kołki', type: 'select', def: 'osobne', show: isOtwory,
-    options: [['osobne', 'Osobne (druk bez podpór)'], ['wbudowane', 'Wbudowane (wymagają podpór)']] },
+  { key: 'kolki', group: 'Kołki', label: 'Wykonanie', type: 'select', def: 'jedna',
+    options: [['jedna', 'Jedna część, bez składania'], ['osobne', 'Osobne kołki do wbicia']] },
   { key: 'kolkiIle', group: 'Kołki', label: 'Liczba kołków', type: 'num', def: 2, min: 1, max: 4, step: 1 },
   { key: 'kolkiCo', group: 'Kołki', label: 'Kołek co ile otworów', type: 'num', def: 1, min: 1, max: 4, step: 1 },
   { key: 'kolekD', group: 'Kołki', label: 'Średnica kołka (otwór ⌀6)', type: 'num', def: 5.8, min: 3, max: 10, step: 0.1 },
-  { key: 'kolekGleb', group: 'Kołki', label: 'Głębokość w otworze', type: 'num', def: 10, min: 4, max: 25, step: 0.5 },
+  { key: 'kolekGleb', group: 'Kołki', label: 'Głębokość w otworze', type: 'num', def: 10, min: 4, max: 25, step: 0.5, show: (p) => !isZatrzask(p) },
+  { key: 'zatrzaskGleb', group: 'Kołki', label: 'Wejście zatrzasku w otwór', type: 'num', def: 3, min: 1.5, max: 6, step: 0.5, show: (p) => isZatrzask(p) },
+  { key: 'zatrzaskGrub', group: 'Kołki', label: 'Grubość języczka zatrzasku', type: 'num', def: 2, min: 1.2, max: 4, step: 0.1, show: (p) => isZatrzask(p) },
 
   { key: 'plytkaSzer', group: 'Płytka na otwory', label: 'Szerokość płytki', type: 'num', def: 20, min: 10, max: 80, step: 0.5, show: isOtwory },
   { key: 'plytkaGrub', group: 'Płytka na otwory', label: 'Grubość płytki', type: 'num', def: 5, min: 3, max: 12, step: 0.5, show: isOtwory },
