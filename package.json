@@ -1,0 +1,13 @@
+{
+  "name": "drukowniak",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/ivar.test.js",
+    "build": "node tools/build-stl.js",
+    "serve": "node tools/serve.js"
+  },
+  "devDependencies": {
+    "manifold-3d": "3.5.4"
+  }
+}

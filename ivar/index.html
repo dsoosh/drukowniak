@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mocowania IVAR</title>
+<meta name="description" content="Parametryczne haki, klipsy i opaski do słupków IKEA IVAR. Podgląd 3D i STL do pobrania.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@600&display=swap">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<style>
+:root { --ground: #eef0f2; --panel: #fbfcfd; --ink: #1c2126; --muted: #5d6670; --line: #cfd5db; --accent: #c2531d; --wood: #d9b27c; --peg: #2f6b8f; --warn: #9a3412; --warn-bg: #fdecdf;
+  --display: "Archivo", "Arial Narrow", sans-serif; --sans: "Source Sans 3", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ground: #15181b; --panel: #1d2125; --ink: #e6e9ec; --muted: #9aa3ac; --line: #353c43; --accent: #f08a4b; --wood: #a7845a; --peg: #6fb3d9; --warn: #fdba8c; --warn-bg: #3a2416; color-scheme: dark; } }
+:root[data-theme="dark"] { --ground: #15181b; --panel: #1d2125; --ink: #e6e9ec; --muted: #9aa3ac; --line: #353c43; --accent: #f08a4b; --wood: #a7845a; --peg: #6fb3d9; --warn: #fdba8c; --warn-bg: #3a2416; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--ground); color: var(--ink); font: 16px/1.5 var(--sans); padding: 28px 16px 64px; }
+a { color: var(--accent); }
+.wrap { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+.back { font: 600 13px var(--mono); letter-spacing: .08em; text-transform: uppercase; text-decoration: none; }
+h1 { font: 800 clamp(40px, 7vw, 64px)/0.95 var(--display); font-stretch: 75%; margin: 4px 0 8px; }
+.lead { max-width: 70ch; margin: 0; color: var(--muted); }
+#presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 600 14px var(--sans); padding: 7px 12px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; }
+.chip[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 -3px 0 var(--accent); }
+.layout { display: grid; grid-template-columns: minmax(300px, 380px) 1fr; gap: 20px; align-items: start; }
+.layout > * { min-width: 0; }
+@media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } .side { order: 2; } .stage { position: static; } #view { height: 52vh; } .row select { max-width: 52vw; } }
+.side { display: flex; flex-direction: column; gap: 12px; }
+fieldset { margin: 0; border: 1px solid var(--line); background: var(--panel); padding: 8px 14px 12px; }
+legend { font: 600 12px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 0 4px; }
+.row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 5px 0; font-size: 15px; }
+.row[hidden], fieldset[hidden] { display: none; }
+.row select { max-width: 210px; }
+.num { display: inline-flex; align-items: center; gap: 4px; }
+.num input { width: 76px; text-align: right; }
+.num i { font-style: normal; color: var(--muted); font-size: 13px; width: 26px; }
+input, select { font: inherit; color: var(--ink); background: var(--ground); border: 1px solid var(--line); padding: 4px 6px; }
+.tag { display: inline-block; font: 600 11px var(--mono); background: var(--wood); color: #2b1d0c; padding: 0 5px; margin-right: 6px; }
+.stage { display: flex; flex-direction: column; gap: 12px; position: sticky; top: 12px; }
+.viewbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.viewbar .sp { flex: 1; }
+#view { position: relative; height: min(62vh, 560px); min-height: 320px; background: var(--panel); border: 1px solid var(--line); }
+#view canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+#status { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); }
+#status[hidden] { display: none; }
+#time { font: 600 12px var(--mono); color: var(--muted); }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn { font: 700 16px var(--sans); padding: 10px 18px; border: 0; background: var(--accent); color: #fff; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); font-weight: 600; }
+.btn[hidden] { display: none; }
+#info { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin: 0; }
+#info div { background: var(--panel); border: 1px solid var(--line); padding: 8px 12px; }
+#info dt { font: 600 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+#info dd { margin: 0; font: 600 17px var(--sans); }
+#warnings { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+#warnings li { background: var(--warn-bg); color: var(--warn); padding: 8px 12px; font-weight: 600; }
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 16px; }
+.note { background: var(--panel); border: 1px solid var(--line); padding: 14px 18px; }
+.note h2 { font: 800 24px/1.1 var(--display); font-stretch: 80%; margin: 0 0 8px; }
+.note ul { margin: 0; padding-left: 18px; }
+.note li { margin: 4px 0; }
+svg.measure { width: 100%; height: auto; max-width: 420px; }
+svg.measure text { font: 600 13px var(--mono); fill: var(--ink); }
+footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="back" href="../">← Drukowniak</a>
+    <h1>Mocowania IVAR</h1>
+    <p class="lead">Haki, klipsy i opaski na słupki regału IKEA IVAR. Mocowanie <b>w otwory</b> trzyma się na kołkach od strony otworów. <b>Opaska</b> obejmuje słupek, a część użytkowa jest po przeciwnej stronie, np. na zewnętrznym boku regału. Wpisz wymiary swojego słupka i pobierz STL.</p>
+  </header>
+
+  <div id="presets" aria-label="Gotowe warianty"></div>
+
+  <div class="layout">
+    <div class="side">
+      <form id="form" autocomplete="off" onsubmit="return false"></form>
+      <button type="button" class="btn ghost" id="reset">Przywróć wartości wariantu</button>
+    </div>
+    <div class="stage">
+      <div class="viewbar">
+        <button type="button" class="chip" data-view="mount" aria-pressed="true">Na słupku</button>
+        <button type="button" class="chip" data-view="print" aria-pressed="false">Do druku</button>
+        <span class="sp"></span><span id="time"></span>
+      </div>
+      <div id="view"><div id="status">Wczytuję silnik geometrii…</div></div>
+      <ul id="warnings"></ul>
+      <dl id="info"></dl>
+      <div class="actions">
+        <button type="button" class="btn" id="dl">Pobierz STL</button>
+        <button type="button" class="btn ghost" id="dl-pegs" hidden>Same kołki</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <section class="note">
+      <h2>Zmierz słupek</h2>
+      <svg class="measure" viewBox="0 0 420 220" role="img" aria-label="Przekrój i bok słupka z oznaczonymi wymiarami A, B, C, D">
+        <g fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="40" y="60" width="132" height="66" fill="var(--wood)" stroke="none" opacity=".6"/>
+          <rect x="40" y="60" width="132" height="66"/>
+          <path d="M106 60v66" stroke-dasharray="4 3"/>
+          <path d="M40 40h132M40 34v12M172 34v12"/>
+          <path d="M20 60v66M14 60h12M14 126h12"/>
+          <path d="M106 150h66M106 144v12M172 144v12"/>
+          <rect x="260" y="20" width="66" height="190" fill="var(--wood)" stroke="none" opacity=".6"/>
+          <rect x="260" y="20" width="66" height="190"/>
+          <circle cx="293" cy="55" r="7"/><circle cx="293" cy="115" r="7"/><circle cx="293" cy="175" r="7"/>
+          <path d="M350 55v60M344 55h12M344 115h12"/>
+        </g>
+        <path d="M100 52 L106 60 L112 52" fill="none" stroke="currentColor"/>
+        <text x="96" y="30">A</text><text x="2" y="98">B</text><text x="134" y="172">C</text><text x="362" y="90">D</text>
+        <text x="40" y="200">przekrój (otwory od góry)</text><text x="262" y="14">ściana z otworami</text>
+      </svg>
+      <ul>
+        <li><b>A</b>: szerokość ściany z otworami, <b>B</b>: grubość słupka wzdłuż otworu.</li>
+        <li><b>C</b>: oś otworów od prawej krawędzi, patrząc na otwory. <b>D</b>: rozstaw otworów w pionie (IVAR: 32 mm).</li>
+        <li>Domyślne A × B = 44 × 22 mm to wartości szacunkowe. Zmierz suwmiarką, zanim wydrukujesz opaskę. Otwory w IVAR mają ⌀6 mm.</li>
+      </ul>
+    </section>
+    <section class="note">
+      <h2>Druk</h2>
+      <ul>
+        <li>Plik leży już na boku: profil haka czy obejmy jest płasko na stole, więc warstwy idą wzdłuż ramienia. Tak jest najmocniej.</li>
+        <li>Kołki osobne leżą obok części. Drukują się bez podpór, bo otwory mają kształt kropli.</li>
+        <li>PETG lub PLA, 4 obrysy, wypełnienie 30–40 %. Opaskę z PLA zakładaj bez siły.</li>
+        <li>Kołki „wbudowane” wymagają podpór pod kołkami (tylko od stołu).</li>
+        <li>Zamiast drukowanego kołka pasuje oryginalny bolec IVAR albo kołek ⌀6.</li>
+      </ul>
+    </section>
+    <section class="note">
+      <h2>Montaż opaski</h2>
+      <ul>
+        <li>Wsuń opaskę z boku. Otwarta strona patrzy w stronę szczebli drabinki, ścianka boczna na zewnątrz.</li>
+        <li>Wyrównaj otwory w przedniej ściance z otworami słupka i wbij kołki od strony otworów.</li>
+        <li>Luz 0,5 mm na stronę pasuje do drewna sosnowego. Jeśli opaska lata, zmniejsz go.</li>
+      </ul>
+    </section>
+  </div>
+
+  <footer>Parametry zapisują się w adresie strony, więc link otwiera dokładnie ten wariant. Kod: <a href="https://github.com/dsoosh/drukowniak">github.com/dsoosh/drukowniak</a></footer>
+</div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
