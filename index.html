@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@600&display=swap">
 <style>
-/* Układ: kolekcje (np. IVAR) jako sekcje, w każdej karty wariantów z miniaturą, konfiguracją i gotowym STL. */
+/* Układ: kafelki projektów (jak w Drewniaku), każdy z miniaturą, opisem i listą wariantów. */
 :root { --ground: #eef0f2; --panel: #fbfcfd; --ink: #1c2126; --muted: #5d6670; --line: #cfd5db; --accent: #c2531d; --thumb: #f3e6dc;
   --display: "Archivo", "Arial Narrow", sans-serif; --sans: "Source Sans 3", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ground: #15181b; --panel: #1d2125; --ink: #e6e9ec; --muted: #9aa3ac; --line: #353c43; --accent: #f08a4b; --thumb: #2a2420; color-scheme: dark; } }
@@ -19,23 +19,17 @@ body { margin: 0; background: var(--ground); color: var(--ink); font: 17px/1.55 
 .eyebrow { font: 600 13px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin: 0; }
 h1 { font: 800 clamp(48px, 9vw, 84px)/0.95 var(--display); font-stretch: 75%; margin: 6px 0 12px; }
 .lead { max-width: 62ch; margin: 0; color: var(--muted); }
-section > header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 16px; }
-section h2 { font: 800 38px/1 var(--display); font-stretch: 80%; margin: 0; }
-section header a { font-weight: 600; color: var(--accent); }
-section > p { margin: -6px 0 16px; color: var(--muted); max-width: 70ch; }
-.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-.card { display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); border-left: 5px solid var(--accent); }
-.card:hover, .card:focus-within { border-color: var(--ink); border-left-color: var(--accent); }
-.card img { width: 100%; aspect-ratio: 1.6; object-fit: contain; background: var(--thumb); padding: 8px; }
-.card .body { padding: 14px 18px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
-.card h3 { font: 800 28px/1 var(--display); font-stretch: 80%; margin: 0; }
-.card h3 a { color: inherit; text-decoration: none; }
-.card h3 a::after { content: ""; position: absolute; inset: 0; }
-.card { position: relative; }
-.card p { margin: 0; font-size: 15.5px; flex: 1; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(290px, 100%), 1fr)); gap: 16px; }
+a.card { display: flex; flex-direction: column; text-decoration: none; color: inherit; background: var(--panel); border: 1px solid var(--line); border-left: 5px solid var(--accent); transition: border-color .15s, transform .15s; }
+a.card:hover, a.card:focus-visible { border-color: var(--ink); border-left-color: var(--accent); outline: none; transform: translateY(-2px); }
+a.card img { width: 100%; aspect-ratio: 1.5; object-fit: contain; background: var(--thumb); padding: 10px; }
+a.card .body { padding: 14px 18px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+a.card h2 { font: 800 30px/1 var(--display); font-stretch: 80%; margin: 0; }
+a.card p { margin: 0; font-size: 15.5px; }
 .spec { font: 600 12.5px var(--mono); color: var(--muted); }
-.links { display: flex; gap: 14px; margin-top: 6px; font-weight: 600; position: relative; z-index: 1; }
-.links a { color: var(--accent); }
+.tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.tools span { font: 600 12px var(--mono); padding: 3px 8px; border: 1px solid var(--line); color: var(--muted); }
+.go { margin-top: auto; padding-top: 4px; font: 600 13px var(--mono); color: var(--accent); }
 footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
 footer a { color: var(--accent); }
 </style>
@@ -45,29 +39,43 @@ footer a { color: var(--accent); }
   <header>
     <p class="eyebrow">Parametryczne wydruki 3D</p>
     <h1>Drukowniak</h1>
-    <p class="lead">Wpisujesz wymiary tego, co masz w domu, oglądasz model w 3D i pobierasz STL gotowy do druku. Każdy model to jedna część: bez składania, bez podpór, już ułożona na stole.</p>
+    <p class="lead">Wpisujesz wymiary tego, co masz w domu, oglądasz model w 3D i pobierasz STL gotowy do druku. Każdy model jest już ułożony na stole i drukuje się bez podpór. Wszystko liczy się w przeglądarce, nic nie wysyłasz na serwer.</p>
   </header>
 
-  <section>
-    <header><h2>Mocowania IVAR</h2><a href="ivar/">Konfigurator →</a></header>
-    <p>Haki, klipsy i opaski do słupków IKEA IVAR. Mocowanie w otwory trzyma się na kołkach od strony otworów. Opaska obejmuje słupek, a część użytkowa jest po drugiej stronie. Gotowe STL mają domyślne wymiary (słupek 44 × 22 mm, otwory ⌀6 co 32 mm). Inny słupek? Otwórz konfigurator.</p>
-    <div class="cards" id="ivar-cards"></div>
-  </section>
+  <div class="cards">
+    <a class="card" href="ivar/">
+      <img src="img/ivar.png" alt="" width="360" height="240">
+      <div class="body">
+        <span class="spec">IKEA IVAR · otwory ⌀6 co 32 mm</span>
+        <h2>Mocowania IVAR</h2>
+        <p>Haki, kołyski, klipsy i płytki do słupków regału. W otwory albo na opasce wokół słupka, z częścią użytkową po drugiej stronie. W jednej części, z kołkami albo zatrzaskiem.</p>
+        <div class="tools"><span>Hak</span><span>Kołyska</span><span>Klips</span><span>Opaska</span><span>Płytka</span></div>
+        <span class="go">Otwórz →</span>
+      </div>
+    </a>
+    <a class="card" href="stemple/">
+      <img src="img/stemple.png" alt="" width="360" height="240">
+      <div class="body">
+        <span class="spec">tekst albo obraz · tusz, glina, ceramika</span>
+        <h2>Stemple</h2>
+        <p>Stempel z napisu w wybranym kroju albo z własnej grafiki. Podgląd odcisku, lustro, pochylone boki reliefu i rączka na wcisk. Także mały znak twórcy na spód miski.</p>
+        <div class="tools"><span>Pieczątka</span><span>Okrągły z ramką</span><span>Znak twórcy</span><span>Do gliny</span></div>
+        <span class="go">Otwórz →</span>
+      </div>
+    </a>
+    <a class="card" href="walek/">
+      <img src="img/walek.png" alt="" width="360" height="240">
+      <div class="body">
+        <span class="spec">ceramika · wzór ciągły dookoła</span>
+        <h2>Wałek do ceramiki</h2>
+        <p>Wałek do faktury w glinie: romby, kropki, fale, jodełka, łuski, kratka albo twój obraz jako kafel. Relief wypukły lub wklęsły, pierścienie ustalające głębokość, otwór na oś.</p>
+        <div class="tools"><span>Romby</span><span>Kropki</span><span>Fale</span><span>Jodełka</span><span>Łuski</span><span>Kratka</span><span>Obraz</span></div>
+        <span class="go">Otwórz →</span>
+      </div>
+    </a>
+  </div>
 
   <footer>Kod i pliki: <a href="https://github.com/dsoosh/drukowniak">github.com/dsoosh/drukowniak</a>. Siostrzany projekt: <a href="https://dsoosh.github.io/drewniak/">Drewniak</a>, kalkulatory konstrukcji z drewna.</footer>
 </div>
-<script type="module">
-import { PRESETS } from './ivar/js/params.js';
-document.getElementById('ivar-cards').innerHTML = PRESETS.map((p) => `
-  <article class="card">
-    <img src="stl/ivar/${p.id}.png" alt="" width="360" height="225" loading="lazy">
-    <div class="body">
-      <span class="spec">${p.spec}</span>
-      <h3><a href="ivar/?p=${p.id}">${p.title}</a></h3>
-      <p>${p.desc}</p>
-      <div class="links"><a href="ivar/?p=${p.id}">Dopasuj wymiary</a><a href="stl/ivar/${p.id}.stl" download>Pobierz STL</a></div>
-    </div>
-  </article>`).join('');
-</script>
 </body>
 </html>

@@ -68,6 +68,14 @@ input, select { font: inherit; color: var(--ink); background: var(--ground); bor
 svg.measure { width: 100%; height: auto; max-width: 420px; }
 svg.measure text { font: 600 13px var(--mono); fill: var(--ink); }
 footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
+h2.section { font: 600 13px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.files { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr)); gap: 12px; }
+.file { background: var(--panel); border: 1px solid var(--line); display: flex; flex-direction: column; }
+.file img { width: 100%; aspect-ratio: 1.4; object-fit: contain; background: var(--ground); padding: 6px; }
+.file div { padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.file b { font: 800 20px/1 var(--display); font-stretch: 80%; }
+.file span { font-size: 14px; color: var(--muted); flex: 1; }
+.file nav { display: flex; gap: 12px; font-weight: 600; font-size: 15px; }
 </style>
 </head>
 <body>
@@ -100,6 +108,11 @@ footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--line)
       </div>
     </div>
   </div>
+
+  <section>
+    <h2 class="section">Gotowe pliki — wymiary domyślne</h2>
+    <div class="files" id="files"></div>
+  </section>
 
   <div class="notes">
     <section class="note">

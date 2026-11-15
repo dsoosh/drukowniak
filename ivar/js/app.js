@@ -201,6 +201,12 @@ function download(manifold, name) {
 }
 
 // ---------- start ----------
+$('#files').innerHTML = PRESETS.map((pr) => `
+  <article class="file">
+    <img src="../stl/ivar/${pr.id}.png" alt="" width="360" height="257" loading="lazy">
+    <div><b>${pr.title}</b><span>${pr.desc}</span>
+      <nav><a href="?p=${pr.id}">Dopasuj</a><a href="../stl/ivar/${pr.id}.stl" download>Pobierz STL</a></nav></div>
+  </article>`).join('');
 readUrl();
 renderPresets();
 renderForm();

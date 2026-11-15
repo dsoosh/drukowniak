@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node tests/ivar.test.js",
+    "test": "node tests/ivar.test.js && node tests/stemple.test.js && node tests/walek.test.js",
     "build": "node tools/build-stl.js",
     "serve": "node tools/serve.js"
   },
