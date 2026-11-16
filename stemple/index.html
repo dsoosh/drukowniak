@@ -7,7 +7,7 @@
 <meta name="description" content="Stemple z obrazu albo tekstu: do tuszu, gliny i ceramiki. Podgląd odcisku, model 3D i STL do pobrania.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@600&family=Archivo+Black&family=Roboto+Slab:wght@700&family=Lobster&family=Pacifico&family=Caveat:wght@700&display=swap">
-<link rel="stylesheet" href="../lib/style.css?v=20261116f">
+<link rel="stylesheet" href="../lib/style.css?v=20261116g">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -17,6 +17,7 @@
 <style>
 #imprint { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
 #imprint:active { cursor: grabbing; }
+@media (pointer: coarse) { #imprint { touch-action: pan-y; } } /* jeden palec przewija stronę, dwa przesuwają i skalują wzór */
 .hint { position: absolute; left: 10px; right: 10px; bottom: 8px; font: 600 12px var(--mono); color: var(--muted); pointer-events: none; }
 .source { display: flex; flex-direction: column; gap: 8px; }
 .thumb { display: flex; gap: 10px; align-items: center; font-size: 14px; color: var(--muted); }
@@ -60,6 +61,7 @@
         <button type="button" class="chip" data-view="imprint" aria-pressed="true">Odcisk</button>
         <button type="button" class="chip" data-view="model" aria-pressed="false">Model 3D</button>
         <button type="button" class="chip" data-view="print" aria-pressed="false">Do druku</button>
+        <button type="button" class="chip" id="center" title="Skala 100 %, wzór na środku">Wyśrodkuj</button>
         <span class="sp"></span><span class="time" id="time"></span>
       </div>
       <div class="view" id="view2d"><canvas id="imprint"></canvas><span class="hint" id="hint">przeciągnij, żeby przesunąć · kółko myszy: skala</span></div>
@@ -105,6 +107,6 @@
 
   <footer>Na podstawie projektu <a href="https://github.com/dsoosh/stamps">stamps</a>, przeniesionego w całości do przeglądarki: obraz nie wychodzi z twojego komputera ani telefonu. Kod: <a href="https://github.com/dsoosh/drukowniak">github.com/dsoosh/drukowniak</a></footer>
 </div>
-<script type="module" src="js/app.js?v=20261116f"></script>
+<script type="module" src="js/app.js?v=20261116g"></script>
 </body>
 </html>

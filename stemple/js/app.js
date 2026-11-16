@@ -5,7 +5,7 @@ import { buildStamp } from './model.js';
 import { meshToStl } from '../../lib/stl.js';
 import { renderForm, applyVisibility, fieldValue, readUrlState, writeUrlState, renderPresetChips, downloadBlob } from '../../lib/form.js';
 import { createViewer, cssVar } from '../../lib/viewer.js';
-import { sourceFromImage, sourceFromText, maskFromSource, bindImageInput, autoThreshold } from '../../lib/imagemask.js?v=20261116f';
+import { sourceFromImage, sourceFromText, maskFromSource, bindImageInput, autoThreshold } from '../../lib/imagemask.js?v=20261116g';
 
 const $ = (s) => document.querySelector(s);
 const state = { ...readUrlState(PARAMS, PRESETS), view: 'imprint', img: null, imgName: '', src: null, srcKey: '', mask: null, result: null };
@@ -97,7 +97,8 @@ function drawImprint() {
 }
 
 function bindDrag() {
-  // jeden palec / mysz: przesuwanie; dwa palce: przesuwanie środkiem i skala rozsuwaniem
+  // mysz / pióro: przesuwanie; dotyk: dopiero dwa palce przesuwają (środkiem) i skalują (rozsuwaniem),
+  // jeden palec przewija stronę (touch-action: pan-y) — inaczej przewijanie po podglądzie wyrzucało wzór poza stempel
   const pts = new Map();
   let drag = null;
   const centre = () => {
@@ -110,16 +111,26 @@ function bindDrag() {
     const c = centre();
     drag = { x: c.x, y: c.y, dist: c.dist, px: state.p.przesX, py: state.p.przesY, skala: state.p.skala };
   };
-  cv.addEventListener('pointerdown', (e) => { pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); cv.setPointerCapture(e.pointerId); start(); });
+  cv.addEventListener('pointerdown', (e) => {
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY, touch: e.pointerType === 'touch' });
+    if (e.pointerType !== 'touch' || pts.size > 1) for (const id of pts.keys()) try { cv.setPointerCapture(id); } catch { /* palec już zniknął */ }
+    start();
+  });
   cv.addEventListener('pointermove', (e) => {
     if (!drag || !pts.has(e.pointerId)) return;
-    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY, touch: e.pointerType === 'touch' });
     const c = centre();
+    if (c.ps.length < 2 && c.ps[0].touch) return; // jeden palec: przewijanie strony
+    if (e.pointerType === 'touch') e.preventDefault();
     setValue('przesX', +(drag.px + (c.x - drag.x) / view2d.scale).toFixed(1));
     setValue('przesY', +(drag.py - (c.y - drag.y) / view2d.scale).toFixed(1));
     if (c.ps.length > 1 && drag.dist > 10) setValue('skala', Math.round((drag.skala * c.dist) / drag.dist));
     schedule(60);
   });
+  // dwa palce na podglądzie: przeglądarka nie przejmuje gestu jako przewijania (pan-y)
+  const twoFingers = (e) => { if (e.touches.length > 1 && e.cancelable) e.preventDefault(); };
+  cv.addEventListener('touchstart', twoFingers, { passive: false });
+  cv.addEventListener('touchmove', twoFingers, { passive: false });
   const end = (e) => { pts.delete(e.pointerId); start(); };
   cv.addEventListener('pointerup', end);
   cv.addEventListener('pointercancel', end);
@@ -205,6 +216,7 @@ bindImageInput($('#drop'), (img, name) => {
   state.img = img; state.imgName = name || 'schowek';
   $('#drop-text').textContent = `${state.imgName} — kliknij albo wklej, żeby zmienić`;
   if (state.p.zrodlo !== 'obraz') setValue('zrodlo', 'obraz');
+  setValue('skala', 100); setValue('przesX', 0); setValue('przesY', 0); // nowy obraz: od środka
   const auto = autoThreshold(sourceFromImage(img));
   setValue('prog', Math.round(auto.threshold * 100));
   syncForm();
@@ -212,7 +224,7 @@ bindImageInput($('#drop'), (img, name) => {
   $('#thumb-text').textContent = `${state.imgName} (${img.naturalWidth} × ${img.naturalHeight} px)${img.flattened ? ', wyrównane oświetlenie' : ''}: próg jasności ${state.p.prog} %, ciemne ${Math.round(auto.dark * 100)} % kadru. Za grube albo za cienkie linie? Zmień próg w parametrach.`;
   $('#thumb').hidden = false;
   if (img.blank) $('#thumb-text').textContent = `${state.imgName} (${img.naturalWidth} × ${img.naturalHeight} px): przeglądarka pokazała zdjęcie, ale nie dała go odczytać — obraz wyszedł pusty. Ustaw w aparacie mniejszą rozdzielczość albo zrób zrzut ekranu zdjęcia i wybierz go z galerii.`;
-  $('#pick-name').textContent = 'Przesuń wzór palcem, rozsuń dwoma palcami, żeby powiększyć.';
+  $('#pick-name').textContent = 'Dwoma palcami na podglądzie przesuniesz i powiększysz wzór.';
   if (matchMedia('(max-width: 860px)').matches) $('.stage').scrollIntoView({ behavior: 'smooth', block: 'start' });
   update();
 }, [$('#camera'), $('#gallery')], (msg) => {
@@ -220,7 +232,8 @@ bindImageInput($('#drop'), (img, name) => {
   $('#drop-text').textContent = msg;
 });
 const coarse = matchMedia('(pointer: coarse)');
-const setHint = () => ($('#hint').textContent = `przeciągnij, żeby przesunąć · ${coarse.matches ? 'dwa palce' : 'kółko myszy'}: skala`);
+const setHint = () => ($('#hint').textContent = coarse.matches ? 'dwa palce: przesuwanie i skala' : 'przeciągnij, żeby przesunąć · kółko myszy: skala');
+$('#center').onclick = () => { setValue('skala', 100); setValue('przesX', 0); setValue('przesY', 0); update(); };
 setHint();
 coarse.addEventListener('change', setHint);
 document.querySelectorAll('[data-view]').forEach((b) => (b.onclick = () => setView(b.dataset.view)));

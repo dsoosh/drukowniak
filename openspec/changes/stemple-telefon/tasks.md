@@ -8,4 +8,6 @@
 - [x] Wersje plików CSS/JS w adresach (cache GitHub Pages 10 min)
 - [x] Duże zdjęcia (50 Mpx+) zmniejszane przy dekodowaniu (`createImageBitmap`), wykrywanie pustego obrazu
 - [x] Wyrównanie oświetlenia zdjęć (winieta, cień) przed progiem; obrys treści bez pojedynczych plamek
+- [x] Dotyk: jeden palec przewija stronę, dwa przesuwają i skalują; przesunięcie ograniczone do pola wzoru;
+  nowy obraz od skali 100 % i środka; przycisk „Wyśrodkuj” (sprawdzone na moto g86 przez CDP)
 - [ ] Sprawdzić na telefonie (Android Chrome, iOS Safari): aparat, galeria, pinch, pobranie STL

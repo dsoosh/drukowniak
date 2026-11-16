@@ -57,7 +57,15 @@ export const PRESETS = [
 ];
 
 export const defaults = () => defaultsOf(PARAMS);
-export const normalize = (input) => normalizeWith(PARAMS, input);
+/** Walidacja; środek wzoru zawsze zostaje w polu wzoru (przesunięcie ≤ połowa pola). */
+export function normalize(input) {
+  const p = normalizeWith(PARAMS, input);
+  const [cw, ch] = contentSize(p);
+  const clamp = (v, m) => Math.min(m, Math.max(-m, v));
+  p.przesX = +clamp(p.przesX, cw / 2).toFixed(1);
+  p.przesY = +clamp(p.przesY, ch / 2).toFixed(1);
+  return p;
+}
 
 /** Wymiary pola na wzór (mm) dla kształtu: [szerokość, wysokość]. */
 export function contentSize(p) {

@@ -87,6 +87,9 @@ test('pochylenie: relief szerszy u podstawy niż na licu', () => {
 });
 
 test('pusta maska → ostrzeżenie, sama podstawa', () => {
+  const off = normalize({ przesX: 38.3, przesY: -77.8 });
+  const [ocw, och] = contentSize(off);
+  assert.ok(Math.abs(off.przesX) <= ocw / 2 && Math.abs(off.przesY) <= och / 2, 'przesunięcie ograniczone do pola wzoru');
   const p = normalize({});
   const r = buildStamp(wasm, p, null);
   assert.ok(r.warnings.some((w) => w.includes('Brak reliefu')));

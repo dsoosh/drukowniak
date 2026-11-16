@@ -9,7 +9,9 @@ wyboru obrazu z galerii. Wczytane zdjęcie SHALL przełączać źródło wzoru n
 - **THEN** zdjęcie staje się źródłem wzoru, a strona przewija się do podglądu odcisku
 
 ### Requirement: Obsługa dotykiem
-Podgląd „Odcisk” SHALL pozwalać przesuwać wzór jednym palcem oraz skalować go rozsuwaniem dwóch palców.
+Na ekranie dotykowym jeden palec SHALL przewijać stronę także na podglądzie „Odcisk”, a dwa palce SHALL
+przesuwać i skalować wzór. Środek wzoru SHALL zawsze zostawać w polu wzoru; nowy obraz SHALL zaczynać
+od skali 100 % i środka; przycisk „Wyśrodkuj” SHALL przywracać to położenie.
 Na ekranach do 860 px układ SHALL prowadzić od źródła obrazu przez podgląd i pobieranie do parametrów.
 
 ### Requirement: Automatyczny próg jasności
