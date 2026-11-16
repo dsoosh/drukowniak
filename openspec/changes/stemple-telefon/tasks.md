@@ -7,4 +7,5 @@
 - [x] Automatyczny próg jasności (Otsu) po wczytaniu obrazu, miniatura obrazu
 - [x] Wersje plików CSS/JS w adresach (cache GitHub Pages 10 min)
 - [x] Duże zdjęcia (50 Mpx+) zmniejszane przy dekodowaniu (`createImageBitmap`), wykrywanie pustego obrazu
+- [x] Wyrównanie oświetlenia zdjęć (winieta, cień) przed progiem; obrys treści bez pojedynczych plamek
 - [ ] Sprawdzić na telefonie (Android Chrome, iOS Safari): aparat, galeria, pinch, pobranie STL

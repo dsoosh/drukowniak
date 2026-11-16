@@ -18,6 +18,10 @@ przeciąganie pliku) są pod komputer.
 - Duże zdjęcia (np. 50 Mpx z Motoroli) są zmniejszane do 1600 px już przy dekodowaniu: Chrome na
   Androidzie po cichu nie rysuje na płótnie obrazów większych niż limit tekstury GPU (biały obraz,
   „Brak reliefu”). Gdy obraz mimo to wyjdzie pusty, strona mówi to wprost.
+- Zdjęcia (≤ 30 % pikseli prawie białych) mają wyrównane oświetlenie przed progiem: jasność papieru
+  szacowana lokalnie, piksel / papier. Bez tego ciemne rogi i cień stawały się reliefem, obrys
+  obejmował cały kadr, a rysunek kurczył się do kilku mm (cienkie linie znikały: „Brak reliefu”).
+  Obrys treści pomija wiersze/kolumny z mniej niż 3 ciemnymi pikselami.
 - `lib/imagemask.js`: `bindImageInput` przyjmuje dodatkowe pola plików (wspólne dla projektów).
 
 ## Bez zmian
