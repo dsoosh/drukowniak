@@ -86,6 +86,15 @@ test('pochylenie: relief szerszy u podstawy niż na licu', () => {
   assert.ok(slab(p.podstawa + 0.2) > slab(p.podstawa + p.relief - 0.2) * 1.2);
 });
 
+test('pogrubienie linii: dylatacja zwiększa, erozja zmniejsza relief', () => {
+  const base = normalize({ ksztalt: 'kwadrat', szer: 40, relief: 2, pochylenie: 0, raczka: 'brak' });
+  const plain = buildStamp(wasm, base, null).part.volume();
+  const vol = (pogrub) => { const p = { ...base, pogrub }; return buildStamp(wasm, p, sampleMask(p)).part.volume() - plain; };
+  const v0 = vol(0), vPlus = vol(0.8), vMinus = vol(-0.4);
+  assert.ok(vPlus > v0 * 1.1, `dylatacja: relief ${vPlus} vs ${v0}`);
+  assert.ok(vMinus < v0 * 0.95, `erozja: relief ${vMinus} vs ${v0}`);
+});
+
 test('pusta maska → ostrzeżenie, sama podstawa', () => {
   const off = normalize({ przesX: 38.3, przesY: -77.8 });
   const [ocw, och] = contentSize(off);

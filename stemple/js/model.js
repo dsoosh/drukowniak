@@ -65,6 +65,8 @@ export function buildStamp(wasm, p, mask) {
   const inner = shape.offset(-p.margines * 0.5, 'Round', 2, SEG);
   const base = shape.extrude(p.podstawa);
   let reliefCs = mask ? maskToCrossSection(wasm, mask, { mirror: p.lustro }) : null;
+  // dylatacja (pogrubienie) / erozja (ścienianie) linii wzoru: offset o połowę z każdej strony
+  if (reliefCs && p.pogrub) reliefCs = reliefCs.offset(p.pogrub / 2, 'Round', 2, 16);
   if (reliefCs && p.negatyw) reliefCs = shape.offset(-p.margines, 'Round', 2, SEG).subtract(reliefCs);
   if (reliefCs) reliefCs = reliefCs.intersect(inner);
   if (reliefCs && p.cienkie > 0) reliefCs = reliefCs.offset(-p.cienkie / 2, 'Round', 2, 16).offset(p.cienkie / 2, 'Round', 2, 16);
@@ -80,7 +82,7 @@ export function buildStamp(wasm, p, mask) {
     // udział linii cieńszych niż 0,5 mm (nie wydrukują się dyszą 0,4)
     const opened = reliefCs.offset(-0.25, 'Round', 2, 16).offset(0.25, 'Round', 2, 16);
     thin = 1 - opened.area() / reliefCs.area();
-    if (thin > 0.03) warnings.push(`Część wzoru (${Math.round(thin * 100)} %) to linie cieńsze niż 0,5 mm — mogą się nie wydrukować. Powiększ wzór albo ustaw „Usuń linie cieńsze niż”.`);
+    if (thin > 0.03) warnings.push(`Część wzoru (${Math.round(thin * 100)} %) to linie cieńsze niż 0,5 mm — mogą się nie wydrukować. Powiększ wzór, ustaw „Pogrubienie linii” albo „Usuń linie cieńsze niż”.`);
   } else {
     warnings.push('Brak reliefu — wpisz tekst, wczytaj obraz albo zmień próg.');
   }

@@ -5,7 +5,7 @@ import { buildStamp } from './model.js';
 import { meshToStl } from '../../lib/stl.js';
 import { renderForm, applyVisibility, fieldValue, readUrlState, writeUrlState, renderPresetChips, downloadBlob } from '../../lib/form.js';
 import { createViewer, cssVar } from '../../lib/viewer.js';
-import { sourceFromImage, sourceFromText, maskFromSource, bindImageInput, autoThreshold } from '../../lib/imagemask.js?v=20261116g';
+import { sourceFromImage, sourceFromText, maskFromSource, bindImageInput, autoThreshold } from '../../lib/imagemask.js?v=20261116h';
 
 const $ = (s) => document.querySelector(s);
 const state = { ...readUrlState(PARAMS, PRESETS), view: 'imprint', img: null, imgName: '', src: null, srcKey: '', mask: null, result: null };
@@ -48,7 +48,8 @@ async function makeMask() {
   const [w, h] = contentSize(p);
   return maskFromSource(src, {
     width: w, height: h, px: Math.min(p.rozdz, Math.max(w, h) / 500), // małe stemple: drobniejsza siatka
-    threshold: p.zrodlo === 'obraz' ? p.prog / 100 : 0.5,
+    threshold: p.zrodlo !== 'obraz' ? 0.5 : p.krawedzie ? p.czulosc / 100 : p.prog / 100,
+    edges: p.zrodlo === 'obraz' && p.krawedzie,
     scale: p.skala / 100, dx: p.przesX, dy: p.przesY, minBlobMm2: p.plamki,
   });
 }
