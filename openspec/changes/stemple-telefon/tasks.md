@@ -6,4 +6,5 @@
 - [x] Układ telefonu: kolejność źródło → podgląd → parametry, większe pola dotyku, 16 px w polach
 - [x] Automatyczny próg jasności (Otsu) po wczytaniu obrazu, miniatura obrazu
 - [x] Wersje plików CSS/JS w adresach (cache GitHub Pages 10 min)
+- [x] Duże zdjęcia (50 Mpx+) zmniejszane przy dekodowaniu (`createImageBitmap`), wykrywanie pustego obrazu
 - [ ] Sprawdzić na telefonie (Android Chrome, iOS Safari): aparat, galeria, pinch, pobranie STL

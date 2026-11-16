@@ -5,7 +5,7 @@ import { buildStamp } from './model.js';
 import { meshToStl } from '../../lib/stl.js';
 import { renderForm, applyVisibility, fieldValue, readUrlState, writeUrlState, renderPresetChips, downloadBlob } from '../../lib/form.js';
 import { createViewer, cssVar } from '../../lib/viewer.js';
-import { sourceFromImage, sourceFromText, maskFromSource, bindImageInput, autoThreshold } from '../../lib/imagemask.js?v=20261116d';
+import { sourceFromImage, sourceFromText, maskFromSource, bindImageInput, autoThreshold } from '../../lib/imagemask.js?v=20261116e';
 
 const $ = (s) => document.querySelector(s);
 const state = { ...readUrlState(PARAMS, PRESETS), view: 'imprint', img: null, imgName: '', src: null, srcKey: '', mask: null, result: null };
@@ -211,6 +211,7 @@ bindImageInput($('#drop'), (img, name) => {
   $('#thumb img').src = img.src;
   $('#thumb-text').textContent = `${state.imgName} (${img.naturalWidth} × ${img.naturalHeight} px): próg jasności ${state.p.prog} %, ciemne ${Math.round(auto.dark * 100)} % kadru. Za grube albo za cienkie linie? Zmień próg w parametrach.`;
   $('#thumb').hidden = false;
+  if (img.blank) $('#thumb-text').textContent = `${state.imgName} (${img.naturalWidth} × ${img.naturalHeight} px): przeglądarka pokazała zdjęcie, ale nie dała go odczytać — obraz wyszedł pusty. Ustaw w aparacie mniejszą rozdzielczość albo zrób zrzut ekranu zdjęcia i wybierz go z galerii.`;
   $('#pick-name').textContent = 'Przesuń wzór palcem, rozsuń dwoma palcami, żeby powiększyć.';
   if (matchMedia('(max-width: 860px)').matches) $('.stage').scrollIntoView({ behavior: 'smooth', block: 'start' });
   update();

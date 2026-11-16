@@ -15,6 +15,9 @@ przeciąganie pliku) są pod komputer.
 - Po wczytaniu obrazu próg jasności ustawia się sam (Otsu): zdjęcia z telefonu są naświetlone
   „na szarość”, a stały próg 50 % łapał całą kartkę i dawał pełny prostokąt. Miniatura wczytanego
   obrazu i ustawiony próg są widoczne pod przyciskami.
+- Duże zdjęcia (np. 50 Mpx z Motoroli) są zmniejszane do 1600 px już przy dekodowaniu: Chrome na
+  Androidzie po cichu nie rysuje na płótnie obrazów większych niż limit tekstury GPU (biały obraz,
+  „Brak reliefu”). Gdy obraz mimo to wyjdzie pusty, strona mówi to wprost.
 - `lib/imagemask.js`: `bindImageInput` przyjmuje dodatkowe pola plików (wspólne dla projektów).
 
 ## Bez zmian
