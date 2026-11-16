@@ -60,6 +60,22 @@ textarea { width: 100%; resize: vertical; }
 .file b { font: 800 20px/1 var(--display); font-stretch: 80%; }
 .file span { font-size: 14px; color: var(--muted); }
 .file nav { display: flex; gap: 12px; font-weight: 600; font-size: 15px; }
+.pick { display: none; flex-wrap: wrap; gap: 8px; align-items: center; }
+.pick .btn { flex: 1 1 140px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.pick input { display: none; }
+.pick svg { width: 22px; height: 22px; }
+.pick-name { flex-basis: 100%; font-size: 14px; color: var(--muted); }
+@media (pointer: coarse) {
+  /* telefon/tablet: aparat i galeria zamiast pola „upuść”, większe pola dotyku, bez zoomu iOS na polach (≥ 16 px) */
+  .pick { display: flex; }
+  .source .drop { display: none !important; } /* tylko tam, gdzie jest .pick */
+  input, select, textarea { font-size: 16px; padding: 6px 8px; }
+  .row { min-height: 44px; }
+  .row input[type="checkbox"] { width: 24px; height: 24px; }
+  .num input { width: 84px; }
+  .chip { padding: 10px 14px; }
+  .btn { min-height: 48px; }
+}
 footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
 @media (max-width: 860px) {
   .layout { grid-template-columns: minmax(0, 1fr); }
@@ -67,4 +83,11 @@ footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--line)
   .stage { position: static; }
   .view { height: 52vh; }
   .row select { max-width: 52vw; }
+  .actions .btn { flex: 1 1 auto; }
+}
+@media (max-width: 480px) {
+  body { padding-top: 18px; }
+  .wrap { gap: 16px; }
+  .view { height: 48vh; min-height: 280px; }
+  .note { padding: 12px 14px; }
 }

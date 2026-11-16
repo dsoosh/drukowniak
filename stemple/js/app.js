@@ -97,15 +97,32 @@ function drawImprint() {
 }
 
 function bindDrag() {
+  // jeden palec / mysz: przesuwanie; dwa palce: przesuwanie środkiem i skala rozsuwaniem
+  const pts = new Map();
   let drag = null;
-  cv.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, y: e.clientY, px: state.p.przesX, py: state.p.przesY }; cv.setPointerCapture(e.pointerId); });
+  const centre = () => {
+    const ps = [...pts.values()];
+    return { ps, x: ps.reduce((a, q) => a + q.x, 0) / ps.length, y: ps.reduce((a, q) => a + q.y, 0) / ps.length,
+      dist: ps.length > 1 ? Math.hypot(ps[0].x - ps[1].x, ps[0].y - ps[1].y) : 0 };
+  };
+  const start = () => {
+    if (!pts.size) { drag = null; return; }
+    const c = centre();
+    drag = { x: c.x, y: c.y, dist: c.dist, px: state.p.przesX, py: state.p.przesY, skala: state.p.skala };
+  };
+  cv.addEventListener('pointerdown', (e) => { pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); cv.setPointerCapture(e.pointerId); start(); });
   cv.addEventListener('pointermove', (e) => {
-    if (!drag) return;
-    setValue('przesX', +(drag.px + (e.clientX - drag.x) / view2d.scale).toFixed(1));
-    setValue('przesY', +(drag.py - (e.clientY - drag.y) / view2d.scale).toFixed(1));
+    if (!drag || !pts.has(e.pointerId)) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const c = centre();
+    setValue('przesX', +(drag.px + (c.x - drag.x) / view2d.scale).toFixed(1));
+    setValue('przesY', +(drag.py - (c.y - drag.y) / view2d.scale).toFixed(1));
+    if (c.ps.length > 1 && drag.dist > 10) setValue('skala', Math.round((drag.skala * c.dist) / drag.dist));
     schedule(60);
   });
-  cv.addEventListener('pointerup', () => { drag = null; });
+  const end = (e) => { pts.delete(e.pointerId); start(); };
+  cv.addEventListener('pointerup', end);
+  cv.addEventListener('pointercancel', end);
   cv.addEventListener('wheel', (e) => {
     e.preventDefault();
     setValue('skala', Math.round(state.p.skala * (e.deltaY < 0 ? 1.05 : 1 / 1.05)));
@@ -187,9 +204,15 @@ bindDrag();
 bindImageInput($('#drop'), (img, name) => {
   state.img = img; state.imgName = name || 'schowek';
   $('#drop-text').textContent = `${state.imgName} — kliknij albo wklej, żeby zmienić`;
+  $('#pick-name').textContent = `Wczytano: ${state.imgName}. Przesuń wzór palcem, rozsuń dwoma palcami, żeby powiększyć.`;
+  if (matchMedia('(max-width: 860px)').matches) $('.stage').scrollIntoView({ behavior: 'smooth', block: 'start' });
   if (state.p.zrodlo !== 'obraz') { setValue('zrodlo', 'obraz'); syncForm(); }
   update();
-});
+}, [$('#camera'), $('#gallery')]);
+const coarse = matchMedia('(pointer: coarse)');
+const setHint = () => ($('#hint').textContent = `przeciągnij, żeby przesunąć · ${coarse.matches ? 'dwa palce' : 'kółko myszy'}: skala`);
+setHint();
+coarse.addEventListener('change', setHint);
 document.querySelectorAll('[data-view]').forEach((b) => (b.onclick = () => setView(b.dataset.view)));
 $('#reset').onclick = () => { state.p = normalize(PRESETS.find((x) => x.id === state.preset)?.values ?? {}); syncForm(); update(); };
 $('#dl').onclick = () => state.result && downloadBlob(meshToStl(state.result.print.getMesh()), `stempel-${fileBase()}.stl`);

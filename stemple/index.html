@@ -17,7 +17,16 @@
 <style>
 #imprint { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
 #imprint:active { cursor: grabbing; }
-.hint { position: absolute; left: 10px; bottom: 8px; font: 600 12px var(--mono); color: var(--muted); pointer-events: none; }
+.hint { position: absolute; left: 10px; right: 10px; bottom: 8px; font: 600 12px var(--mono); color: var(--muted); pointer-events: none; }
+.source { display: flex; flex-direction: column; gap: 8px; }
+@media (max-width: 860px) {
+  /* telefon: najpierw źródło obrazu, potem podgląd i pobieranie, na końcu parametry */
+  .side { display: contents; }
+  .source { order: 0; }
+  .stage { order: 1; }
+  #form { order: 2; }
+  #reset { order: 3; }
+}
 </style>
 </head>
 <body>
@@ -32,7 +41,14 @@
 
   <div class="layout">
     <div class="side">
-      <label class="drop" id="drop" hidden><input type="file" accept="image/*"><span id="drop-text">Upuść obraz, kliknij, żeby wybrać, albo wklej (Ctrl+V)</span></label>
+      <div class="source">
+        <label class="drop" id="drop" hidden><input type="file" accept="image/*"><span id="drop-text">Upuść obraz, kliknij, żeby wybrać, albo wklej (Ctrl+V)</span></label>
+        <div class="pick" aria-label="Obraz z telefonu">
+          <label class="btn"><input type="file" accept="image/*" capture="environment" id="camera"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l2-3h6l2 3h3v13H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" fill="none" stroke="currentColor" stroke-width="2"/></svg>Zrób zdjęcie</label>
+          <label class="btn ghost"><input type="file" accept="image/*" id="gallery">Wybierz z galerii</label>
+          <span class="pick-name" id="pick-name">Sfotografuj rysunek albo logo na białej kartce, z bliska i bez cienia.</span>
+        </div>
+      </div>
       <form id="form" autocomplete="off" onsubmit="return false"></form>
       <button type="button" class="btn ghost" id="reset">Przywróć wartości wariantu</button>
     </div>
@@ -43,7 +59,7 @@
         <button type="button" class="chip" data-view="print" aria-pressed="false">Do druku</button>
         <span class="sp"></span><span class="time" id="time"></span>
       </div>
-      <div class="view" id="view2d"><canvas id="imprint"></canvas><span class="hint">przeciągnij, żeby przesunąć · kółko myszy: skala</span></div>
+      <div class="view" id="view2d"><canvas id="imprint"></canvas><span class="hint" id="hint">przeciągnij, żeby przesunąć · kółko myszy: skala</span></div>
       <div class="view" id="view3d" hidden><div class="status" id="status">Wczytuję silnik geometrii…</div></div>
       <ul class="warnings" id="warnings"></ul>
       <dl class="info" id="info"></dl>
@@ -61,6 +77,7 @@
       <ul>
         <li>Podgląd „Odcisk” pokazuje to, co zostanie na papierze albo w glinie. Odbicie lustrzane robi się samo.</li>
         <li>Najlepsze są proste, kontrastowe grafiki: logo, sylwetki, monogramy. Zdjęcia rzadko wychodzą dobrze.</li>
+        <li>Na telefonie „Zrób zdjęcie” otwiera aparat. Najlepiej wychodzi rysunek grubym flamastrem na białej kartce, sfotografowany prosto z góry przy równym świetle. Szare tło usuniesz progiem jasności.</li>
         <li>Linie cieńsze niż 0,5 mm się nie wydrukują. Strona ostrzega, a opcja „Usuń linie cieńsze niż” je wycina.</li>
         <li>Negatyw: wypukłe jest tło, a wzór zostaje wgłębiony.</li>
       </ul>
@@ -83,7 +100,7 @@
     </section>
   </div>
 
-  <footer>Na podstawie projektu <a href="https://github.com/dsoosh/stamps">stamps</a>, przeniesionego w całości do przeglądarki: obraz nie wychodzi z twojego komputera. Kod: <a href="https://github.com/dsoosh/drukowniak">github.com/dsoosh/drukowniak</a></footer>
+  <footer>Na podstawie projektu <a href="https://github.com/dsoosh/stamps">stamps</a>, przeniesionego w całości do przeglądarki: obraz nie wychodzi z twojego komputera ani telefonu. Kod: <a href="https://github.com/dsoosh/drukowniak">github.com/dsoosh/drukowniak</a></footer>
 </div>
 <script type="module" src="js/app.js"></script>
 </body>
