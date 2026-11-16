@@ -5,7 +5,7 @@ import { buildStamp } from './model.js';
 import { meshToStl } from '../../lib/stl.js';
 import { renderForm, applyVisibility, fieldValue, readUrlState, writeUrlState, renderPresetChips, downloadBlob } from '../../lib/form.js';
 import { createViewer, cssVar } from '../../lib/viewer.js';
-import { sourceFromImage, sourceFromText, maskFromSource, bindImageInput } from '../../lib/imagemask.js';
+import { sourceFromImage, sourceFromText, maskFromSource, bindImageInput } from '../../lib/imagemask.js?v=20261116b';
 
 const $ = (s) => document.querySelector(s);
 const state = { ...readUrlState(PARAMS, PRESETS), view: 'imprint', img: null, imgName: '', src: null, srcKey: '', mask: null, result: null };
@@ -208,7 +208,10 @@ bindImageInput($('#drop'), (img, name) => {
   if (matchMedia('(max-width: 860px)').matches) $('.stage').scrollIntoView({ behavior: 'smooth', block: 'start' });
   if (state.p.zrodlo !== 'obraz') { setValue('zrodlo', 'obraz'); syncForm(); }
   update();
-}, [$('#camera'), $('#gallery')]);
+}, [$('#camera'), $('#gallery')], (msg) => {
+  $('#pick-name').textContent = msg;
+  $('#drop-text').textContent = msg;
+});
 const coarse = matchMedia('(pointer: coarse)');
 const setHint = () => ($('#hint').textContent = `przeciągnij, żeby przesunąć · ${coarse.matches ? 'dwa palce' : 'kółko myszy'}: skala`);
 setHint();
