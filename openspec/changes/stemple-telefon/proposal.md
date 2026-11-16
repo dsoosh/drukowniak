@@ -12,6 +12,9 @@ przeciąganie pliku) są pod komputer.
 - Podgląd odcisku: dwa palce skalują i przesuwają wzór (pinch), jeden palec przesuwa.
 - Układ do 860 px: źródło obrazu → podgląd i pobieranie → parametry. Większe pola dotyku,
   pola formularza ≥ 16 px (bez automatycznego zoomu iOS).
+- Po wczytaniu obrazu próg jasności ustawia się sam (Otsu): zdjęcia z telefonu są naświetlone
+  „na szarość”, a stały próg 50 % łapał całą kartkę i dawał pełny prostokąt. Miniatura wczytanego
+  obrazu i ustawiony próg są widoczne pod przyciskami.
 - `lib/imagemask.js`: `bindImageInput` przyjmuje dodatkowe pola plików (wspólne dla projektów).
 
 ## Bez zmian

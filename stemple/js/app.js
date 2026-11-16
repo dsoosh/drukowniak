@@ -5,7 +5,7 @@ import { buildStamp } from './model.js';
 import { meshToStl } from '../../lib/stl.js';
 import { renderForm, applyVisibility, fieldValue, readUrlState, writeUrlState, renderPresetChips, downloadBlob } from '../../lib/form.js';
 import { createViewer, cssVar } from '../../lib/viewer.js';
-import { sourceFromImage, sourceFromText, maskFromSource, bindImageInput } from '../../lib/imagemask.js?v=20261116b';
+import { sourceFromImage, sourceFromText, maskFromSource, bindImageInput, autoThreshold } from '../../lib/imagemask.js?v=20261116c';
 
 const $ = (s) => document.querySelector(s);
 const state = { ...readUrlState(PARAMS, PRESETS), view: 'imprint', img: null, imgName: '', src: null, srcKey: '', mask: null, result: null };
@@ -204,9 +204,14 @@ bindDrag();
 bindImageInput($('#drop'), (img, name) => {
   state.img = img; state.imgName = name || 'schowek';
   $('#drop-text').textContent = `${state.imgName} — kliknij albo wklej, żeby zmienić`;
-  $('#pick-name').textContent = `Wczytano: ${state.imgName}. Przesuń wzór palcem, rozsuń dwoma palcami, żeby powiększyć.`;
+  if (state.p.zrodlo !== 'obraz') setValue('zrodlo', 'obraz');
+  setValue('prog', Math.round(autoThreshold(sourceFromImage(img)) * 100));
+  syncForm();
+  $('#thumb img').src = img.src;
+  $('#thumb-text').textContent = `${state.imgName}: próg jasności ustawiony na ${state.p.prog} %. Za grube albo za cienkie linie? Zmień próg w parametrach.`;
+  $('#thumb').hidden = false;
+  $('#pick-name').textContent = 'Przesuń wzór palcem, rozsuń dwoma palcami, żeby powiększyć.';
   if (matchMedia('(max-width: 860px)').matches) $('.stage').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  if (state.p.zrodlo !== 'obraz') { setValue('zrodlo', 'obraz'); syncForm(); }
   update();
 }, [$('#camera'), $('#gallery')], (msg) => {
   $('#pick-name').textContent = msg;
